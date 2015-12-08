@@ -1,0 +1,19 @@
+Time : 10:35:23
+SQLSTATE[42S22]: Column not found: 1054 Unknown column 'UserID' in 'field list'
+Raw SQL : INSERT INTO post(Content, UserID) VALUES (:Content, :UserID)
+
+Time : 10:29:25
+SQLSTATE[21S01]: Insert value list does not match column list: 1136 Column count doesn't match value count at row 1
+Raw SQL : INSERT INTO post(Content, UserID) VALUES (:Content);
+
+Time : 10:24:18
+SQLSTATE[21S01]: Insert value list does not match column list: 1136 Column count doesn't match value count at row 1
+Raw SQL : INSERT INTO post(Content, UserID) VALUES (:Content);
+
+Time : 10:22:52
+SQLSTATE[21S01]: Insert value list does not match column list: 1136 Column count doesn't match value count at row 1
+Raw SQL : INSERT INTO post(Content, UserID) VALUES (:Content);
+
+Time : 10:21:35
+SQLSTATE[21S01]: Insert value list does not match column list: 1136 Column count doesn't match value count at row 1
+Raw SQL : INSERT INTO post(Content, UserID) VALUES (:Content);

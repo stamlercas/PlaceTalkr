@@ -1,0 +1,43 @@
+Time : 17:14:16
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'BY c.Time DESC' at line 1
+Raw SQL : SELECT CommentID, c.Content, c.Time, u.Username FROM comments c JOIN users u on u.userID = c.UserID WHERE PostID = :PostIDORDER BY c.Time DESC
+
+Time : 17:13:31
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'BY Time DESC' at line 1
+Raw SQL : SELECT CommentID, c.Content, c.Time, u.Username FROM comments c JOIN users u on u.userID = c.UserID WHERE PostID = :PostIDORDER BY Time DESC
+
+Time : 13:38:33
+SQLSTATE[HY000]: General error: 2031 
+Raw SQL : SELECT Name FROM places WHERE PlaceID = :PlaceID
+
+Time : 13:18:36
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'JOIN users ON posts.UserID = users.UserID JOIN places ON places.PlaceID = posts.' at line 1
+Raw SQL : SELECT PostID, Content, Time, posts.UserID, users.Username, places.NameFROM posts JOIN users ON posts.UserID = users.UserID JOIN places ON places.PlaceID = posts.PlaceID WHERE posts.PlaceID = :PlaceID ORDER BY Time DESC
+
+Time : 13:17:27
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'JOIN users ON posts.UserID = users.UserID JOIN places ON places.PlaceID = posts.' at line 1
+Raw SQL : SELECT PostID, Content, Time, posts.UserID, users.Username, places.NameFROM posts JOIN users ON posts.UserID = users.UserID JOIN places ON places.PlaceID = posts.PlaceIDWHERE posts.PlaceID = :PlaceID ORDER BY Time DESC
+
+Time : 13:16:42
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'JOIN users ON posts.UserID = users.UserID JOIN places ON places.PlaceID = posts.' at line 1
+Raw SQL : SELECT PostID, Content, Time, posts.UserID, users.Username, places.NameFROM posts JOIN users ON posts.UserID = users.UserID JOIN places ON places.PlaceID = posts.PlaceIDWHERE posts.PlaceID = :PlaceID ORDER BY Time DESC
+
+Time : 01:19:25
+SQLSTATE[42S22]: Column not found: 1054 Unknown column 'PlaceID' in 'where clause'
+Raw SQL : SELECT COUNT(*) AS `Count` FROM users WHERE PlaceID = :value
+
+Time : 01:13:06
+SQLSTATE[42S22]: Column not found: 1054 Unknown column 'PlaceID' in 'where clause'
+Raw SQL : SELECT COUNT(*) AS `Count` FROM users WHERE PlaceID = :value
+
+Time : 01:12:29
+SQLSTATE[42S22]: Column not found: 1054 Unknown column 'PlaceID' in 'where clause'
+Raw SQL : SELECT COUNT(*) AS `Count` FROM users WHERE PlaceID = :value
+
+Time : 01:11:29
+SQLSTATE[42S22]: Column not found: 1054 Unknown column 'PlaceID' in 'where clause'
+Raw SQL : SELECT COUNT(*) AS `Count` FROM users WHERE PlaceID = :value
+
+Time : 00:59:39
+SQLSTATE[42S22]: Column not found: 1054 Unknown column 'PlaceID' in 'where clause'
+Raw SQL : SELECT COUNT(*) AS `Count` FROM users WHERE PlaceID = :value
