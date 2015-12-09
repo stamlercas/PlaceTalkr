@@ -41,7 +41,8 @@
             android:layout_height="match_parent"
             android:text="@string/btnPost"
             android:id="@+id/btnPost"
-            android:layout_weight=".33" />
+            android:layout_weight=".33"
+            style="@style/ButtonTheme" />
 
     </LinearLayout>
 

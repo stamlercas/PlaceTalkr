@@ -92,7 +92,8 @@
             android:layout_height="match_parent"
             android:text="@string/btnSubmit"
             android:id="@+id/btnSubmit"
-            android:layout_weight=".33" />
+            android:layout_weight=".33"
+            style="@style/ButtonTheme" />
 
     </LinearLayout>
 

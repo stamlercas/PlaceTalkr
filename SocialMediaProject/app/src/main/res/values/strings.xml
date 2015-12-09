@@ -17,7 +17,7 @@
     <string name="registerHere">Don\'t have an account? Register Here.</string>
     <string name="btnPost">Post</string>
     <string name="title_activity_post_details">PostDetailsActivity</string>
-    <string name="title_activity_comments">CommentsActivity</string>
+    <string name="title_activity_comments">Comments</string>
     <string name="menuitem_refresh">Refresh</string>
     <string name="action_findPlace">Not Here?</string>
     <string name="btnSubmit">Submit</string>
