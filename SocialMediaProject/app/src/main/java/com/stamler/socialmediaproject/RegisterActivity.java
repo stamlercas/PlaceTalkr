@@ -26,6 +26,8 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        //even though the layout theme has no action bar this is still needed...
+        getSupportActionBar().hide();
 
         editUsername = (EditText)findViewById(R.id.editUsername);
         editEmail = (EditText)findViewById(R.id.editEmail);
@@ -47,6 +49,13 @@ public class RegisterActivity extends AppCompatActivity {
 
                 if (!password.equals(confirm))
                     Toast.makeText(getBaseContext(), "Password does not match.", Toast.LENGTH_SHORT).show();
+                else if (username.length() < 6)
+                    showErrorMessage("Username must be 6 or more characters");
+                else if (email.equals(""))
+                    showErrorMessage("Email cannot be empty.");
+                else if (password.equals(""))
+                    showErrorMessage("Password must contain at least 1 character.  That's it, none of that must be 20 character, " +
+                            "have one uppercase letter, and have the blood of a virgin bullshit.");
                 else
                 {
                     //hashing

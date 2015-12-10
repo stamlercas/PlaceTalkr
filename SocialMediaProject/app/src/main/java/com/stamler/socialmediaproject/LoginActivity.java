@@ -1,6 +1,5 @@
 package com.stamler.socialmediaproject;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +24,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        //even though the layout theme has no action bar this is still needed...
+        getSupportActionBar().hide();
 
         editUsername = (EditText)findViewById(R.id.editUsername);
         editPassword = (EditText)findViewById(R.id.editPassword);

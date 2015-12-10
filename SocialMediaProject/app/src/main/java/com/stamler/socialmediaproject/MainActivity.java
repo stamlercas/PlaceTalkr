@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private ArrayList<Place> places;
 
     private boolean alreadyLoaded = false;          //flag to stop refreshing
+    private boolean firstToPost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,11 +92,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //TODO: get individual post and display comments
-                String postID = ((TextView) view.findViewById(R.id.postID)).getText().toString();
-                Intent intent = new Intent(MainActivity.this, CommentsActivity.class);
-                intent.putExtra("postID", postID);
-                startActivityForResult(intent, 100);
+                //get individual post and display comments if not first to post in location
+                if (!firstToPost) {
+                    String postID = ((TextView) view.findViewById(R.id.postID)).getText().toString();
+                    Intent intent = new Intent(MainActivity.this, CommentsActivity.class);
+                    intent.putExtra("postID", postID);
+                    startActivityForResult(intent, 100);
+                }
             }
         });
         btnPost.setOnClickListener(new View.OnClickListener() {
@@ -166,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     {
         if (jsonArray == null || jsonArray.length() == 0)
         {
+            firstToPost = true;
             ArrayList<HashMap<String, String>> hashmap = new ArrayList<>();
             HashMap<String, String> temp = new HashMap<>();
             temp.put("content", "Be the first one to post here!");
@@ -179,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             list.setAdapter(adapter);
         }
         else {
+            firstToPost = false;
             adapter = new SimpleAdapter(
                     this,
                     jsonToHashMap(jsonArray),
@@ -358,8 +363,81 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                             placeLikelihood.getPlace().getName(),
                             placeLikelihood.getLikelihood()));
                 }
+                //ADD TEST LOCATION:
+                //  this loation can be joined by anyone from anywhere
+                places.add(new Place() {
+                    @Override
+                    public String getId() {
+                        return "1";
+                    }
+
+                    @Override
+                    public List<Integer> getPlaceTypes() {
+                        return null;
+                    }
+
+                    @Override
+                    public CharSequence getAddress() {
+                        return null;
+                    }
+
+                    @Override
+                    public Locale getLocale() {
+                        return null;
+                    }
+
+                    @Override
+                    public CharSequence getName() {
+                        return "Test Location";
+                    }
+
+                    @Override
+                    public LatLng getLatLng() {
+                        return new LatLng(0, 0);
+                    }
+
+                    @Override
+                    public LatLngBounds getViewport() {
+                        return null;
+                    }
+
+                    @Override
+                    public Uri getWebsiteUri() {
+                        return null;
+                    }
+
+                    @Override
+                    public CharSequence getPhoneNumber() {
+                        return null;
+                    }
+
+                    @Override
+                    public boolean zzsT() {
+                        return false;
+                    }
+
+                    @Override
+                    public float getRating() {
+                        return 0;
+                    }
+
+                    @Override
+                    public int getPriceLevel() {
+                        return 0;
+                    }
+
+                    @Override
+                    public Place freeze() {
+                        return null;
+                    }
+
+                    @Override
+                    public boolean isDataValid() {
+                        return false;
+                    }
+                });
                 //got a nullpointerexception
-                if (nearest != null) {
+                if (nearest != null || nearest.getPlace() != null) {
                     Log.i("GOOGLE PLACES", String.format("Place " +
                             nearest.getPlace().getName() + " " + nearest.getPlace().getId()));
                     place = nearest.getPlace();
