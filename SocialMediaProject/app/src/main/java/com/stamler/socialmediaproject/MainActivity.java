@@ -106,7 +106,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             finish();
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
         }
-        txtHeader.setText(userLocalStore.getLoggedInUser().getUsername());
 
         jObj = new JSONObject();
         txtPost = (TextView)findViewById(R.id.txtPost);
@@ -155,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void onStart()
     {
         super.onStart();
+        txtHeader.setText(userLocalStore.getLoggedInUser().getUsername());
         if( mGoogleApiClient != null )
             mGoogleApiClient.connect();
         //authenticate user and get all the posts to display
