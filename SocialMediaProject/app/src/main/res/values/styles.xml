@@ -12,13 +12,13 @@
         <item name="android:background">#FFB400</item>
     </style>
 
-    <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">#0094C6</item>
+        <item name="colorPrimaryDark">#040F16</item>
+        <item name="colorAccent">#FFB400</item>
+        <!-- only supported for sdk versions 19 or higher
+        <item name="android:windowTranslucentStatus">true</item>
+        -->
     </style>
-
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>

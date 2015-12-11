@@ -4,11 +4,17 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -60,10 +66,27 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private boolean alreadyLoaded = false;          //flag to stop refreshing
     private boolean firstToPost;
 
+    private DrawerLayout mDrawer;
+    private Toolbar toolbar;
+    private ActionBarDrawerToggle drawerToggle;
+    private NavigationView nvDrawer;
+    protected TextView txtHeader;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerToggle = setupDrawerToggle();
+        // Tie DrawerLayout events to the ActionBarToggle
+        mDrawer.setDrawerListener(drawerToggle);
+        nvDrawer = (NavigationView) findViewById(R.id.nvView);
+        // Setup drawer view
+        setupDrawerContent(nvDrawer);
+        txtHeader = (TextView)findViewById(R.id.txtHeader);
 
         //instantiate google api client
         mGoogleApiClient = new GoogleApiClient
@@ -83,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             finish();
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
         }
+        txtHeader.setText(userLocalStore.getLoggedInUser().getUsername());
 
         jObj = new JSONObject();
         txtPost = (TextView)findViewById(R.id.txtPost);
@@ -109,6 +133,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     post(txtPost.getText().toString(), userLocalStore.getLoggedInUser());
             }
         });
+    }
+
+    protected void onPostCreate(Bundle savedInstanceState)
+    {
+        super.onPostCreate(savedInstanceState);
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Pass any configuration change to the drawer toggles
+        drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    private ActionBarDrawerToggle setupDrawerToggle() {
+        return new ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.drawer_open,  R.string.drawer_close);
     }
 
     public void onStart()
@@ -154,10 +195,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 } catch (JSONException e) {
                     e.printStackTrace();
                     try {       //make sure the JSONException is because there have been no posts made yet
-                                //have to put a try catch inside a catch...
+                        //have to put a try catch inside a catch...
                         if (returnedJSONObject.getInt("FirstToPost") == 1)
                             displayPosts(null);
-                    } catch (JSONException ex) { ex.printStackTrace(); }
+                    } catch (JSONException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
         });
@@ -270,8 +313,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     {
         final ArrayList<Place> temp = this.places;
         CharSequence[] places = new CharSequence[this.places.size()];
-        for (int i = 0; i < places.length; i++)
-        {
+        for (int i = 0; i < places.length; i++) {
             places[i] = this.places.get(i).getName();
         }
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
@@ -286,6 +328,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         AlertDialog dialog = dialogBuilder.create();
         dialog.show();
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -303,6 +346,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         switch(id)
         {
+            case (android.R.id.home):
+                mDrawer.openDrawer(GravityCompat.START);
+                break;
+            /*
             case(R.id.action_settings):
                 break;
             case(R.id.action_logout):
@@ -314,6 +361,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             case (R.id.action_findPlace):
                 pickDifferentPlace();
                 break;
+                */
             case(R.id.action_refresh):
                 finish();
                 startActivity(getIntent());
@@ -450,6 +498,38 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
             //likelyPlaces.release();
         });
+    }
+
+    private void setupDrawerContent(NavigationView navigationView) {
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        selectDrawerItem(menuItem);
+                        return true;
+                    }
+                });
+    }
+
+    public void selectDrawerItem(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.navProfile:
+                //startActivity(new Intent(MainActivity.this, ContactsActivity.class));
+                break;
+            case R.id.navNotHere:
+                pickDifferentPlace();
+                break;
+            case R.id.navLogout:
+                userLocalStore.clearUserData();
+                userLocalStore.setUserLoggedIn(false);
+                finish();
+                startActivity(getIntent());
+                break;
+        }
+        // Highlight the selected item, update the title, and close the drawer
+        menuItem.setChecked(true);
+        //setTitle(menuItem.getTitle());    //no need
+        mDrawer.closeDrawers();
     }
 
     @Override

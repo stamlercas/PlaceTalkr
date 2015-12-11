@@ -26,8 +26,6 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        //even though the layout theme has no action bar this is still needed...
-        getSupportActionBar().hide();
 
         editUsername = (EditText)findViewById(R.id.editUsername);
         editEmail = (EditText)findViewById(R.id.editEmail);
