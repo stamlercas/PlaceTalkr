@@ -406,6 +406,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         nearest = placeLikelihood;
                         place = nearest.getPlace();
                     }
+                    //maybe this isn't a good idea..
+                    //if (placeLikelihood.getLikelihood() > 0.00000)
                     places.add(placeLikelihood.getPlace());
                     Log.i("GOOGLE PLACES", String.format("Place '%s' has likelihood: %g",
                             placeLikelihood.getPlace().getName(),
@@ -514,7 +516,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void selectDrawerItem(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.navProfile:
-                //startActivity(new Intent(MainActivity.this, ContactsActivity.class));
+                startActivity(new Intent(MainActivity.this, ProfileActivity.class));
                 break;
             case R.id.navNotHere:
                 pickDifferentPlace();
@@ -530,6 +532,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         menuItem.setChecked(true);
         //setTitle(menuItem.getTitle());    //no need
         mDrawer.closeDrawers();
+        menuItem.setChecked(false);
     }
 
     @Override

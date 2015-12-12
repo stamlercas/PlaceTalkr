@@ -1,6 +1,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/menu_top"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/navProfile"
             android:icon="@drawable/ic_profile"
@@ -9,6 +11,10 @@
             android:id="@+id/navNotHere"
             android:icon="@drawable/ic_not_here"
             android:title="@string/action_findPlace" />
+    </group>
+    <group
+        android:id="@+id/menu_bottom"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/navLogout"
             android:icon="@drawable/ic_logout"

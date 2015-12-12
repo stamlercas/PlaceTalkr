@@ -33,7 +33,7 @@ import java.util.ArrayList;
 public class ServerRequests {
     ProgressDialog progressDialog;
     public final static int CONNECTION_TIMEOUT = 1000 * 15;
-    public final static String SERVER_ADDRESS = "http://cisprod.clarion.edu/~s_castamler/";
+    public final static String SERVER_ADDRESS = "http://10.0.0.84/android/";
     public final static String SUCCESS = "success";
 
     protected int postID;
@@ -95,6 +95,12 @@ public class ServerRequests {
     {
         progressDialog.show();
         new commentDataInBackground(user, comment, postID, jObj, callBack).execute();
+    }
+
+    public void getUserDataInBackground(User user, JSONObject jObj, GetJSONObjectCallBack callBack)
+    {
+        progressDialog.show();
+        new getUserDataInBackground(user, jObj, callBack).execute();
     }
 
     public class StoreUserDataAsyncTask extends AsyncTask<Void, Void, JSONObject>
@@ -436,5 +442,61 @@ public class ServerRequests {
             callBack.done(returnedJSONObject);
             super.onPostExecute(returnedJSONObject);
         }
+    }
+
+    public class getUserDataInBackground extends AsyncTask<Void, Void, JSONObject>
+    {
+        JSONObject jObj;
+        GetJSONObjectCallBack callBack;
+
+        User user;
+
+        public getUserDataInBackground(User user, JSONObject jObj, GetJSONObjectCallBack callBack)
+        {
+            this.jObj = jObj;
+            this.callBack = callBack;
+            this.user = user;
+        }
+
+        protected JSONObject doInBackground(Void... params) {
+            ArrayList<NameValuePair> dataToSend = new ArrayList<>();
+            dataToSend.add(new BasicNameValuePair("UserID", String.valueOf(user.getUserID())));
+
+            return simpleDoInBackground(dataToSend, SERVER_ADDRESS + "get_user_info.php");
+        }
+
+        protected void onPostExecute(JSONObject returnedJSONObject)
+        {
+            progressDialog.dismiss();
+            callBack.done(returnedJSONObject);
+            super.onPostExecute(returnedJSONObject);
+        }
+    }
+
+    private JSONObject simpleDoInBackground(ArrayList<NameValuePair> dataToSend, String url)
+    {
+        HttpParams httpRequestParams = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(httpRequestParams,
+                CONNECTION_TIMEOUT);
+        HttpConnectionParams.setSoTimeout(httpRequestParams,
+                CONNECTION_TIMEOUT);
+
+        HttpClient client = new DefaultHttpClient(httpRequestParams);
+        HttpPost post = new HttpPost(url);
+
+        try {
+            post.setEntity(new UrlEncodedFormEntity(dataToSend));       //attach data to request
+            HttpResponse httpResponse = client.execute(post);           //retrieve json to know if successful or not
+
+            HttpEntity entity = httpResponse.getEntity();
+            String result = EntityUtils.toString(entity);
+
+            JSONObject jObject = new JSONObject(result);
+            return jObject;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }
