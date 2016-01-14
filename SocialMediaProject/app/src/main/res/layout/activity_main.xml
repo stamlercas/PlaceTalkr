@@ -58,7 +58,7 @@
                     <RelativeLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight=".67">
+                        android:layout_weight=".8">
 
                         <EditText
                             android:layout_width="match_parent"
@@ -69,12 +69,13 @@
                             android:maxLength="145" />
                     </RelativeLayout>
 
-                    <Button
+                    <ImageButton
+                        android:background="@null"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:text="@string/btnPost"
                         android:id="@+id/btnPost"
-                        android:layout_weight=".33"
+                        android:layout_weight=".2"
+                        android:src="@drawable/ic_send"
                         style="@style/ButtonTheme" />
 
                 </LinearLayout>

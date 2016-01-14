@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected ListView list;
     protected JSONObject jObj;
     protected ListAdapter adapter;
-    protected Button btnPost;
+    protected ImageButton btnPost;
     protected TextView txtPost;
 
     private GoogleApiClient mGoogleApiClient;
@@ -110,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         jObj = new JSONObject();
         txtPost = (TextView)findViewById(R.id.txtPost);
         list = (ListView)findViewById(R.id.list);
-        btnPost = (Button)findViewById(R.id.btnPost);
+        btnPost = (ImageButton)findViewById(R.id.btnPost);
         //listeners
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -380,32 +381,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
             @Override
             public void onResult(PlaceLikelihoodBuffer likelyPlaces) {
-                PlaceLikelihood nearest = new PlaceLikelihood() {
-                    @Override
-                    public float getLikelihood() {
-                        return 0;
-                    }
-
-                    @Override
-                    public Place getPlace() {
-                        return null;
-                    }
-
-                    @Override
-                    public PlaceLikelihood freeze() {
-                        return null;
-                    }
-
-                    @Override
-                    public boolean isDataValid() {
-                        return false;
-                    }
-                };
+                PlaceLikelihood nearest = null;
                 for (PlaceLikelihood placeLikelihood : likelyPlaces) {
-                    if (placeLikelihood.getLikelihood() > nearest.getLikelihood()) {
-                        nearest = placeLikelihood;
-                        place = nearest.getPlace();
+                    if (nearest != null) {
+                        if (placeLikelihood.getLikelihood() > nearest.getLikelihood()) {   //short circuting
+                            nearest = placeLikelihood;
+                            place = nearest.getPlace();
+                        }
                     }
+                    //if its null, then the first place is the most likely
+                    else
+                        nearest = placeLikelihood;
                     //maybe this isn't a good idea..
                     //if (placeLikelihood.getLikelihood() > 0.00000)
                     places.add(placeLikelihood.getPlace());

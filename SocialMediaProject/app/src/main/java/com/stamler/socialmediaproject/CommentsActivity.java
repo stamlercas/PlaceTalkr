@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -34,7 +35,7 @@ public class CommentsActivity extends AppCompatActivity {
     protected ListAdapter adapter;
     protected ListView list;
 
-    protected Button btnSubmit;
+    protected ImageButton btnSubmit;
     protected EditText txtSubmit;
 
     protected UserLocalStore userLocalStore;
@@ -62,7 +63,7 @@ public class CommentsActivity extends AppCompatActivity {
 
         list = (ListView)findViewById(R.id.list);
 
-        btnSubmit = (Button)findViewById(R.id.btnSubmit);
+        btnSubmit = (ImageButton)findViewById(R.id.btnSubmit);
         txtSubmit = (EditText)findViewById(R.id.txtSubmit);
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {

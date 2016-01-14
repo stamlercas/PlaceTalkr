@@ -13,6 +13,14 @@
             android:title="@string/action_findPlace" />
     </group>
     <group
+        android:id="@+id/menu_friends"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/navAddFriend"
+            android:icon="@drawable/ic_add_friend"
+            android:title="@string/title_activity_add_friend" />
+    </group>
+    <group
         android:id="@+id/menu_bottom"
         android:checkableBehavior="single">
         <item

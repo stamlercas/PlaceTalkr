@@ -33,7 +33,7 @@ import java.util.ArrayList;
 public class ServerRequests {
     ProgressDialog progressDialog;
     public final static int CONNECTION_TIMEOUT = 1000 * 15;
-    public final static String SERVER_ADDRESS = "http://10.0.0.84/android/";
+    public final static String SERVER_ADDRESS = "http://cisprod.clarion.edu/~s_castamler/";
     public final static String SUCCESS = "success";
 
     protected int postID;
