@@ -33,7 +33,7 @@ import java.util.ArrayList;
 public class ServerRequests {
     ProgressDialog progressDialog;
     public final static int CONNECTION_TIMEOUT = 1000 * 15;
-    public final static String SERVER_ADDRESS = "http://cisprod.clarion.edu/~s_castamler/";
+    public final static String SERVER_ADDRESS = "http://10.6.4.235/android/"; //"http://cisprod.clarion.edu/~s_castamler/";
     public final static String SUCCESS = "success";
 
     protected int postID;
@@ -72,10 +72,10 @@ public class ServerRequests {
     }
 
     //used to get posts for main activity
-    public void getPostsDataInBackground(JSONObject jObj, Place place, GetJSONObjectCallBack callBack)
+    public void getPostsDataInBackground(JSONObject jObj, Place place, int page, int pageSize, GetJSONObjectCallBack callBack)
     {
-        progressDialog.show();
-        new getPostsDataInBackground(jObj, place, callBack).execute();
+        //progressDialog.show();    Don't need to show, replaced with footerView
+        new getPostsDataInBackground(jObj, place, page, pageSize, callBack).execute();
     }
 
     //gets individual post details along with comments
@@ -227,12 +227,15 @@ public class ServerRequests {
         JSONObject jObj;
         Place place;
         GetJSONObjectCallBack callBack;
+        int page, pageSize;
 
-        public getPostsDataInBackground(JSONObject jObj, Place place, GetJSONObjectCallBack callBack)
+        public getPostsDataInBackground(JSONObject jObj, Place place, int page, int pageSize, GetJSONObjectCallBack callBack)
         {
             this.jObj = jObj;
             this.place = place;
             this.callBack = callBack;
+            this.page = page;
+            this.pageSize = pageSize;
         }
 
         protected JSONObject doInBackground(Void... params) {
@@ -241,6 +244,10 @@ public class ServerRequests {
             dataToSend.add(new BasicNameValuePair("Latitude", String.valueOf(place.getLatLng().latitude)));
             dataToSend.add(new BasicNameValuePair("Longitude", String.valueOf(place.getLatLng().longitude)));
             dataToSend.add(new BasicNameValuePair("Name", String.valueOf(place.getName())));
+            dataToSend.add(new BasicNameValuePair("Page", String.valueOf(page)));
+            dataToSend.add(new BasicNameValuePair("PageSize", String.valueOf(pageSize)));
+            for (int i = 0; i < dataToSend.size(); i++)
+                Log.i(dataToSend.get(i).getName(), dataToSend.get(i).getValue());
 
             HttpParams httpRequestParams = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(httpRequestParams,
@@ -259,6 +266,7 @@ public class ServerRequests {
 
                 HttpEntity entity = httpResponse.getEntity();
                 String result = EntityUtils.toString(entity);
+                Log.i("Result: ", result);
 
                 jObject = new JSONObject(result);
                 return jObject;

@@ -2,6 +2,7 @@ package com.stamler.socialmediaproject;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -17,10 +18,13 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListAdapter;
@@ -73,6 +77,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private NavigationView nvDrawer;
     protected TextView txtHeader;
 
+    protected int start = 0;               //don't need anymore because of InfiniteScrollListener class
+    protected boolean endOfList = false;
+    protected static final int pageSize = 25;
+    protected boolean flag_loading = false;
+    protected ArrayList<HashMap<String, String>> posts;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,6 +119,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
         }
 
+        posts = new ArrayList<>();
+
         jObj = new JSONObject();
         txtPost = (TextView)findViewById(R.id.txtPost);
         list = (ListView)findViewById(R.id.list);
@@ -131,6 +144,52 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 //send post to the server
                 if (txtPost.getText().length() != 0)
                     post(txtPost.getText().toString(), userLocalStore.getLoggedInUser());
+            }
+        });
+        /*
+        list.setOnScrollListener(new InfiniteScrollListener(pageSize) {
+            @Override
+            public void loadMore(int page, int totalItemsCount) {
+                while(!getPosts(jObj, place, start, pageSize));
+                for (int i = 0; i < posts.size(); i++)
+                    Log.d(String.valueOf(i), posts.get(i).get("postID"));
+            }
+        });
+        */
+        //for dynamically adding items
+        list.setOnScrollListener(new AbsListView.OnScrollListener() {
+            int currentFirstVisibleItem = 0;
+            int currentVisibleItemCount = 0;
+            int totalItemCount = 0;
+            int currentScrollState = 0;
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                this.currentScrollState = scrollState;
+                this.isScrollCompleted();
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                this.currentFirstVisibleItem = firstVisibleItem;
+                this.currentVisibleItemCount = visibleItemCount;
+                this.totalItemCount = totalItemCount;
+            }
+
+            private void isScrollCompleted() {
+                if (this.currentVisibleItemCount > 0 && this.currentScrollState == SCROLL_STATE_IDLE
+                        && this.totalItemCount == (currentFirstVisibleItem + currentVisibleItemCount)) {
+                    /*** In this way I detect if there's been a scroll which has completed ***/
+                    /*** do the work for load more date! ***/
+                    if (!endOfList) {       //don't load new posts if it is the all the posts have been loaded
+                        if (!flag_loading) {
+                            flag_loading = true;
+                            View footer = getLayoutInflater().inflate(R.layout.list_footer, null);
+                            list.addFooterView(footer);
+                            getPosts(jObj, place, start, pageSize);
+                            list.removeFooterView(footer);
+                        }
+                    }
+                }
             }
         });
     }
@@ -174,23 +233,40 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onStop();
     }
 
-    public void getPosts(JSONObject jObj, Place place) {
-        list.setAdapter(null);
+    //because java doesn't support default parameters....
+    public void getPosts(JSONObject jObj, Place place)
+    {
+        getPosts(jObj, place, 0, pageSize);
+    }
+
+    //return true to tell when its done loading
+    public boolean getPosts(JSONObject jObj, Place place, final int page, int pageSize) {
+        //list.setAdapter(null);
         ServerRequests serverRequest = new ServerRequests(this);
-        serverRequest.getPostsDataInBackground(jObj, place, new GetJSONObjectCallBack() {
+        serverRequest.getPostsDataInBackground(jObj, place, page, pageSize, new GetJSONObjectCallBack() {
             @Override
             public void done(JSONObject returnedJSONObject) {
                 try {
                     //if no object is returned, then assume it did not connect to db
-                    if (returnedJSONObject == null) {
+                    if (returnedJSONObject == null && !endOfList) {
                         showErrorMessage("Sorry, the app could not connect.");
                         txtPost.setEnabled(false);
                     } else if (returnedJSONObject.getInt("success") == 1) {
+                        endOfList = returnedJSONObject.getBoolean("EndOfList");
                         //gets the object with the array in it
                         //set the action bar title to name
-                        setTitle(returnedJSONObject.getString("PlaceName"));
+                        setTitle(returnedJSONObject.getString("PlaceName").replaceAll("\\\\",""));
                         JSONArray jsonArray = returnedJSONObject.getJSONArray("posts");
-                        displayPosts(jsonArray);
+                        //if page is 0, then the first posts are being displayed
+                        if (page == 0)
+                        {
+                            displayPosts(jsonArray);
+                            start++;
+                        }
+                        else {
+                            addPosts(jsonArray);
+                            start++;
+                        }
                     } else if (returnedJSONObject.getInt("success") == 0)
                         showErrorMessage(returnedJSONObject.getString("message"));
                 } catch (JSONException e) {
@@ -205,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
             }
         });
-
+        return true;
     }
 
     //display individual posts
@@ -228,14 +304,32 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
         else {
             firstToPost = false;
+            posts = jsonToHashMap(jsonArray);
             adapter = new SimpleAdapter(
                     this,
-                    jsonToHashMap(jsonArray),
+                    posts,
                     R.layout.layout_posts,
                     new String[]{"postID", "username", "content", "time"},      //order matters HERE!
                     new int[]{R.id.postID, R.id.username, R.id.content, R.id.time});
             list.setAdapter(adapter);
         }
+    }
+
+    public void addPosts(JSONArray jsonArray)
+    {
+        firstToPost = false;
+        posts.addAll( jsonToHashMap(jsonArray) );
+        /*
+        adapter = new SimpleAdapter(
+                this,
+                posts,
+                R.layout.layout_posts,
+                new String[]{"postID", "username", "content", "time"},      //order matters HERE!
+                new int[]{R.id.postID, R.id.username, R.id.content, R.id.time});
+                */
+
+        ((SimpleAdapter)adapter).notifyDataSetChanged();
+        flag_loading = false;
     }
 
     //convert the json array into hashmap to place in listview
@@ -248,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             try {
                 childNode = jArr.getJSONObject(i);
                 postList.add( createPost(childNode.getString("PostID"),
-                                        childNode.getString("Content"),
+                                        childNode.getString("Content").replaceAll("\\\\",""),
                                         childNode.getString("Username"),
                                         childNode.getString("Time")));
             } catch(JSONException e) {
@@ -321,6 +415,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         dialogBuilder.setTitle("Where are you?");
         dialogBuilder.setItems(places, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
+                start = 0;
                 place = temp.get(item);
                 getPosts(jObj, temp.get(item));
             }
@@ -479,6 +574,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     place = nearest.getPlace();
                     //if (place != null)
                     //setTitle(place.getName());
+                    start = 0;
                     getPosts(jObj, nearest.getPlace());
                 }
                 else

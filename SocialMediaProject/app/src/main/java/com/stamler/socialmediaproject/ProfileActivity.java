@@ -16,7 +16,7 @@ import org.w3c.dom.Text;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    protected TextView txtUsername, txtScore, numPosts, numComments, txtFullName;
+    protected TextView txtUsername, txtScore, numPosts, numComments, txtFullName, mostPopPlace;
     protected JSONObject jObj;
     protected UserLocalStore userLocalStore;
 
@@ -33,6 +33,7 @@ public class ProfileActivity extends AppCompatActivity {
         numPosts = (TextView)findViewById(R.id.txtNumPosts);
         numComments = (TextView)findViewById(R.id.txtNumComments);
         txtFullName = (TextView)findViewById(R.id.txtFullName);
+        mostPopPlace = (TextView)findViewById(R.id.mostPopPlace);
         jObj = new JSONObject();
 
         userLocalStore = new UserLocalStore(this);
@@ -86,6 +87,7 @@ public class ProfileActivity extends AppCompatActivity {
             numPosts.setText("Number of Posts: " + jObj.getString("NumberOfPosts"));
             numComments.setText("Number of Comments: " + jObj.getString("NumberOfComments"));
             txtFullName.setText(jObj.getString("FirstName") + " " + jObj.getString("LastName"));
+            mostPopPlace.setText("Most Popular Place: " + jObj.getString("MostPopularPlace"));
         } catch(JSONException e) {
             e.printStackTrace();
         }

@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
@@ -39,6 +40,8 @@ public class CommentsActivity extends AppCompatActivity {
     protected EditText txtSubmit;
 
     protected UserLocalStore userLocalStore;
+
+    protected RelativeLayout postsLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,12 +69,20 @@ public class CommentsActivity extends AppCompatActivity {
         btnSubmit = (ImageButton)findViewById(R.id.btnSubmit);
         txtSubmit = (EditText)findViewById(R.id.txtSubmit);
 
+        postsLayout = (RelativeLayout)findViewById(R.id.postLayout);
+
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //send post to the server
                 if (txtSubmit.getText().length() != 0)
                     comment(postID, txtSubmit.getText().toString(), userLocalStore.getLoggedInUser());
+            }
+        });
+        postsLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO: goto profile activity to display the profile for user who posted
             }
         });
     }
