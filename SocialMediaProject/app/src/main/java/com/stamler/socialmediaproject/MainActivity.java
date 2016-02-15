@@ -388,6 +388,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         //do not want to refresh intent, may give other place
                         //and you want to clear the edittext too
                         getPosts(new JSONObject(), place);
+                        //reset start
+                        start = 0;
                         txtPost.setText("");
                     }
                 } catch (JSONException e) {
