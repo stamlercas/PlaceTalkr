@@ -53,14 +53,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
+public class MainActivity extends BaseActivity implements GoogleApiClient.ConnectionCallbacks,
                                                     GoogleApiClient.OnConnectionFailedListener {
 
-    UserLocalStore userLocalStore;
+    //UserLocalStore userLocalStore;
 
     protected ListView list;
-    protected JSONObject jObj;
-    protected ListAdapter adapter;
+    //protected JSONObject jObj;
+    //protected ListAdapter adapter;
     protected ImageButton btnPost;
     protected TextView txtPost;
 
@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private ArrayList<Place> places;
 
     private boolean alreadyLoaded = false;          //flag to stop refreshing
-    private boolean firstToPost;
 
     private DrawerLayout mDrawer;
     private Toolbar toolbar;
@@ -77,11 +76,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private NavigationView nvDrawer;
     protected TextView txtHeader;
 
+    protected PostsCreator posts;
+
+    /* REFACTORED
     protected int start = 0;               //don't need anymore because of InfiniteScrollListener class
     protected boolean endOfList = false;
     protected static final int pageSize = 25;
     protected boolean flag_loading = false;
-    protected ArrayList<HashMap<String, String>> posts;
+    protected ArrayList<HashMap<String, String>> posts;*/
+
+    protected View footer;
+
 
 
     @Override
@@ -111,26 +116,32 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         places = new ArrayList<>();
 
 
+        /* REFACTORED
         //check if user is logged in
         userLocalStore = new UserLocalStore(this);
         if (userLocalStore.getLoggedInUser() == null)
         {
             finish();
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
-        }
+        }*/
 
-        posts = new ArrayList<>();
+        //posts = new ArrayList<>(); REFACTORED
 
-        jObj = new JSONObject();
+        //jObj = new JSONObject();  REFACTORED
         txtPost = (TextView)findViewById(R.id.txtPost);
         list = (ListView)findViewById(R.id.list);
+        /* REFACTORED
+        //footer will always be at bottom until end of list is reached
+        footer = getLayoutInflater().inflate(R.layout.list_footer, null);
+        list.addFooterView(footer);*/
+
         btnPost = (ImageButton)findViewById(R.id.btnPost);
         //listeners
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //get individual post and display comments if not first to post in location
-                if (!firstToPost) {
+                if (!posts.getFirstToPost()) {
                     String postID = ((TextView) view.findViewById(R.id.postID)).getText().toString();
                     Intent intent = new Intent(MainActivity.this, CommentsActivity.class);
                     intent.putExtra("postID", postID);
@@ -144,52 +155,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 //send post to the server
                 if (txtPost.getText().length() != 0)
                     post(txtPost.getText().toString(), userLocalStore.getLoggedInUser());
-            }
-        });
-        /*
-        list.setOnScrollListener(new InfiniteScrollListener(pageSize) {
-            @Override
-            public void loadMore(int page, int totalItemsCount) {
-                while(!getPosts(jObj, place, start, pageSize));
-                for (int i = 0; i < posts.size(); i++)
-                    Log.d(String.valueOf(i), posts.get(i).get("postID"));
-            }
-        });
-        */
-        //for dynamically adding items
-        list.setOnScrollListener(new AbsListView.OnScrollListener() {
-            int currentFirstVisibleItem = 0;
-            int currentVisibleItemCount = 0;
-            int totalItemCount = 0;
-            int currentScrollState = 0;
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-                this.currentScrollState = scrollState;
-                this.isScrollCompleted();
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                this.currentFirstVisibleItem = firstVisibleItem;
-                this.currentVisibleItemCount = visibleItemCount;
-                this.totalItemCount = totalItemCount;
-            }
-
-            private void isScrollCompleted() {
-                if (this.currentVisibleItemCount > 0 && this.currentScrollState == SCROLL_STATE_IDLE
-                        && this.totalItemCount == (currentFirstVisibleItem + currentVisibleItemCount)) {
-                    /*** In this way I detect if there's been a scroll which has completed ***/
-                    /*** do the work for load more date! ***/
-                    if (!endOfList) {       //don't load new posts if it is the all the posts have been loaded
-                        if (!flag_loading) {
-                            flag_loading = true;
-                            View footer = getLayoutInflater().inflate(R.layout.list_footer, null);
-                            list.addFooterView(footer);
-                            getPosts(jObj, place, start, pageSize);
-                            list.removeFooterView(footer);
-                        }
-                    }
-                }
             }
         });
     }
@@ -233,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onStop();
     }
 
+    /* REFACTORED
     //because java doesn't support default parameters....
     public void getPosts(JSONObject jObj, Place place)
     {
@@ -269,6 +235,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         }
                     } else if (returnedJSONObject.getInt("success") == 0)
                         showErrorMessage(returnedJSONObject.getString("message"));
+                    //check to see if should remove footer
+                    if (endOfList)
+                        list.removeFooterView(footer);
+                    //then check to see if footer is removed, if its not the end of the list, since you could pick a different location
+                    //and start loading posts from the first page
+                    else if (!endOfList && list.getFooterViewsCount() == 0)
+                        list.addFooterView(footer);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     try {       //make sure the JSONException is because there have been no posts made yet
@@ -319,15 +292,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     {
         firstToPost = false;
         posts.addAll( jsonToHashMap(jsonArray) );
-        /*
-        adapter = new SimpleAdapter(
-                this,
-                posts,
-                R.layout.layout_posts,
-                new String[]{"postID", "username", "content", "time"},      //order matters HERE!
-                new int[]{R.id.postID, R.id.username, R.id.content, R.id.time});
-                */
-
         ((SimpleAdapter)adapter).notifyDataSetChanged();
         flag_loading = false;
     }
@@ -360,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         post.put("username", username);
         post.put("time", time);
         return post;
-    }
+    }*/
 
     //make sure user is logged into application
     public boolean authenticate()
@@ -387,9 +351,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     {
                         //do not want to refresh intent, may give other place
                         //and you want to clear the edittext too
-                        getPosts(new JSONObject(), place);
-                        //reset start
-                        start = 0;
+                        //posts = new PostsCreator(MainActivity.this, list, place);
+                        posts.resetAndGetContent();
                         txtPost.setText("");
                     }
                 } catch (JSONException e) {
@@ -397,13 +360,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
             }
         });
-    }
-
-    private void showErrorMessage(String msg) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(MainActivity.this);
-        dialogBuilder.setMessage(msg);
-        dialogBuilder.setPositiveButton("Ok", null);
-        dialogBuilder.show();
     }
 
     protected void pickDifferentPlace()
@@ -417,9 +373,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         dialogBuilder.setTitle("Where are you?");
         dialogBuilder.setItems(places, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
-                start = 0;
-                place = temp.get(item);
-                getPosts(jObj, temp.get(item));
+                //start = 0;    REFACTORED
+                //place = temp.get(item);
+                posts.resetAndGetContent(temp.get(item));
             }
         });
         //create it and show
@@ -576,8 +532,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     place = nearest.getPlace();
                     //if (place != null)
                     //setTitle(place.getName());
-                    start = 0;
-                    getPosts(jObj, nearest.getPlace());
+                    //start = 0;
+                    posts = new PostsCreator(MainActivity.this, list, place);
+                    posts.resetAndGetContent(nearest.getPlace());
                 }
                 else
                     showErrorMessage("Sorry, the app could not find your location. Try refreshing.");
@@ -637,5 +594,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void setPlace(Place place)
     {
         this.place = place;
+    }
+
+    public void setTxtPost(boolean value)
+    {
+        txtPost.setEnabled(value);
     }
 }

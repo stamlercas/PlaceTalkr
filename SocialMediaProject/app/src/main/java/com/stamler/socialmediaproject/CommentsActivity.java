@@ -27,7 +27,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class CommentsActivity extends AppCompatActivity {
+public class CommentsActivity extends BaseActivity {
 
     protected String postID;
     protected JSONObject jObj;
@@ -225,13 +225,6 @@ public class CommentsActivity extends AppCompatActivity {
         post.put("username", username);
         post.put("time", time);
         return post;
-    }
-
-    private void showErrorMessage(String msg) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(CommentsActivity.this);
-        dialogBuilder.setMessage(msg);
-        dialogBuilder.setPositiveButton("Ok", null);
-        dialogBuilder.show();
     }
 
     //make sure user is logged into application

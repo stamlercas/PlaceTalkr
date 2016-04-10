@@ -14,11 +14,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends BaseActivity {
 
     protected TextView txtUsername, txtScore, numPosts, numComments, txtFullName, mostPopPlace;
     protected JSONObject jObj;
-    protected UserLocalStore userLocalStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +34,6 @@ public class ProfileActivity extends AppCompatActivity {
         txtFullName = (TextView)findViewById(R.id.txtFullName);
         mostPopPlace = (TextView)findViewById(R.id.mostPopPlace);
         jObj = new JSONObject();
-
-        userLocalStore = new UserLocalStore(this);
     }
 
     public void onStart()
@@ -93,13 +90,6 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
 
-    }
-
-    private void showErrorMessage(String msg) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(ProfileActivity.this);
-        dialogBuilder.setMessage(msg);
-        dialogBuilder.setPositiveButton("Ok", null);
-        dialogBuilder.show();
     }
 
 }
