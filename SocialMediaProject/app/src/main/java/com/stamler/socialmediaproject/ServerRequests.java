@@ -79,10 +79,10 @@ public class ServerRequests {
     }
 
     //gets individual post details along with comments
-    public void getIndividualPostsDataInBackground(JSONObject jObj, String postID, GetJSONObjectCallBack callBack)
+    public void getIndividualPostsDataInBackground(JSONObject jObj, String postID, int page, int pageSize, GetJSONObjectCallBack callBack)
     {
-        progressDialog.show();
-        new getIndividualPostsDataInBackground(jObj, postID, callBack).execute();
+        //progressDialog.show();
+        new getIndividualPostsDataInBackground(jObj, postID, page, pageSize, callBack).execute();
     }
 
     public void postDataInBackground(User user, String post, JSONObject jObj, Place place, GetJSONObjectCallBack callBack)
@@ -244,6 +244,11 @@ public class ServerRequests {
             dataToSend.add(new BasicNameValuePair("Latitude", String.valueOf(place.getLatLng().latitude)));
             dataToSend.add(new BasicNameValuePair("Longitude", String.valueOf(place.getLatLng().longitude)));
             dataToSend.add(new BasicNameValuePair("Name", String.valueOf(place.getName())));
+
+            dataToSend.add(new BasicNameValuePair("Address", String.valueOf(place.getAddress())));
+            dataToSend.add(new BasicNameValuePair("PhoneNumber", String.valueOf(place.getPhoneNumber())));
+            dataToSend.add(new BasicNameValuePair("WebsiteUri", String.valueOf(place.getWebsiteUri())));
+
             dataToSend.add(new BasicNameValuePair("Page", String.valueOf(page)));
             dataToSend.add(new BasicNameValuePair("PageSize", String.valueOf(pageSize)));
             for (int i = 0; i < dataToSend.size(); i++)
@@ -290,17 +295,22 @@ public class ServerRequests {
         JSONObject jObj;
         GetJSONObjectCallBack callBack;
         String postID;
+        int page, pageSize;
 
-        public getIndividualPostsDataInBackground(JSONObject jObj, String postID, GetJSONObjectCallBack callBack)
+        public getIndividualPostsDataInBackground(JSONObject jObj, String postID, int page, int pageSize, GetJSONObjectCallBack callBack)
         {
             this.jObj = jObj;
             this.callBack = callBack;
             this.postID = postID;
+            this.page = page;
+            this.pageSize = pageSize;
         }
 
         protected JSONObject doInBackground(Void... params) {
             ArrayList<NameValuePair> dataToSend = new ArrayList<>();
             dataToSend.add(new BasicNameValuePair("PostID", postID));
+            dataToSend.add(new BasicNameValuePair("Page", String.valueOf(page)));
+            dataToSend.add(new BasicNameValuePair("PageSize", String.valueOf(pageSize)));
 
             HttpParams httpRequestParams = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(httpRequestParams,

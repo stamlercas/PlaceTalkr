@@ -352,7 +352,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
                         //do not want to refresh intent, may give other place
                         //and you want to clear the edittext too
                         //posts = new PostsCreator(MainActivity.this, list, place);
-                        posts.resetAndGetContent();
+                        posts.resetAndGetContent(place);
                         txtPost.setText("");
                     }
                 } catch (JSONException e) {
@@ -374,7 +374,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
         dialogBuilder.setItems(places, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 //start = 0;    REFACTORED
-                //place = temp.get(item);
+                place = temp.get(item);
                 posts.resetAndGetContent(temp.get(item));
             }
         });

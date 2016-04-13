@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -30,10 +31,10 @@ import java.util.HashMap;
 public class CommentsActivity extends BaseActivity {
 
     protected String postID;
-    protected JSONObject jObj;
+    //protected JSONObject jObj;
     protected TextView content, username, time;
 
-    protected ListAdapter adapter;
+    //protected ListAdapter adapter;
     protected ListView list;
 
     protected ImageButton btnSubmit;
@@ -42,6 +43,8 @@ public class CommentsActivity extends BaseActivity {
     protected UserLocalStore userLocalStore;
 
     protected RelativeLayout postsLayout;
+
+    protected CommentsCreator comments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,8 +93,18 @@ public class CommentsActivity extends BaseActivity {
     public void onStart()
     {
         super.onStart();
-        if (authenticate())
-            getPost(jObj, postID);
+        if (authenticate()) {
+            //getPost(jObj, postID);
+            comments = new CommentsCreator(CommentsActivity.this, list, postID);
+            comments.getContent();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     @Override
@@ -103,6 +116,10 @@ public class CommentsActivity extends BaseActivity {
             case android.R.id.home:
                 // app icon in action bar clicked; goto parent activity.
                 this.finish();
+                break;
+            case(R.id.action_refresh):
+                finish();
+                startActivity(getIntent());
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -122,7 +139,7 @@ public class CommentsActivity extends BaseActivity {
                     {
                         //do not want to refresh intent, may give other place
                         //and you want to clear the edittext too
-                        getPost(new JSONObject(), returnedJSONObj.getString("PostID"));
+                        comments.resetAndGetContent();
                         txtSubmit.setText("");
                     }
                 } catch (JSONException e) {
@@ -132,6 +149,7 @@ public class CommentsActivity extends BaseActivity {
         });
     }
 
+    /* REFACTORED
     public void getPost(JSONObject jObj, String postID) {
         ServerRequests serverRequest = new ServerRequests(this);
         serverRequest.getIndividualPostsDataInBackground(jObj, postID, new GetJSONObjectCallBack() {
@@ -155,7 +173,7 @@ public class CommentsActivity extends BaseActivity {
             }
         });
 
-    }
+    }*/
 
     //display individual posts
     public void displayPost(JSONObject post)
@@ -169,6 +187,7 @@ public class CommentsActivity extends BaseActivity {
             e.printStackTrace();
         }
     }
+    /*
 
     public void displayComments(JSONArray comments)
     {
@@ -225,7 +244,7 @@ public class CommentsActivity extends BaseActivity {
         post.put("username", username);
         post.put("time", time);
         return post;
-    }
+    } */
 
     //make sure user is logged into application
     public boolean authenticate()

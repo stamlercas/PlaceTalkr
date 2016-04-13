@@ -42,7 +42,7 @@ public class CommentsCreator extends ContentCreator {
     //gets the specific post along with the comments associated with it
     public void getPost(JSONObject jObj, String postID, final int page, int pageSize) {
         ServerRequests serverRequest = new ServerRequests(mActivity.getBaseContext());
-        serverRequest.getIndividualPostsDataInBackground(jObj, postID, new GetJSONObjectCallBack() {
+        serverRequest.getIndividualPostsDataInBackground(jObj, postID, page, pageSize, new GetJSONObjectCallBack() {
             @Override
             public void done(JSONObject returnedJSONObject) {
                 try {
@@ -72,6 +72,12 @@ public class CommentsCreator extends ContentCreator {
 
                     } else if (returnedJSONObject.getInt("success") == 0)
                         mActivity.showErrorMessage(returnedJSONObject.getString("message"));
+                    if (endOfList)
+                        list.removeFooterView(footer);
+                        //then check to see if footer is removed, if its not the end of the list, since you could pick a different location
+                        //and start loading posts from the first page
+                    else if (!endOfList && list.getFooterViewsCount() == 0)
+                        list.addFooterView(footer);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

@@ -62,6 +62,7 @@ public class PostsCreator extends ContentCreator {
                         //gets the object with the array in it
                         //set the action bar title to name
                         mActivity.setTitle(returnedJSONObject.getString("PlaceName").replaceAll("\\\\", ""));
+                        mActivity.getSupportActionBar().setSubtitle(returnedJSONObject.getString("Address").replaceAll("\\\\", ""));
                         JSONArray jsonArray = returnedJSONObject.getJSONArray("posts");
                         //if page is 0, then the first posts are being displayed
                         if (page == 0) {
