@@ -52,8 +52,7 @@ public class RegisterActivity extends AppCompatActivity {
                 else if (email.equals(""))
                     showErrorMessage("Email cannot be empty.");
                 else if (password.equals(""))
-                    showErrorMessage("Password must contain at least 1 character.  That's it, none of that must be 20 character, " +
-                            "have one uppercase letter, and have the blood of a virgin bullshit.");
+                    showErrorMessage("Password must contain at least 1 character.");
                 else
                 {
                     //hashing

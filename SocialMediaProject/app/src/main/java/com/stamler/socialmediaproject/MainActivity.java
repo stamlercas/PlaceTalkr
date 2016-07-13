@@ -141,7 +141,7 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //get individual post and display comments if not first to post in location
-                if (!posts.getFirstToPost()) {
+                if (!posts.getFirstToPost()) {    //TODO: if the view being selected is the footer view, then it will null obj
                     String postID = ((TextView) view.findViewById(R.id.postID)).getText().toString();
                     Intent intent = new Intent(MainActivity.this, CommentsActivity.class);
                     intent.putExtra("postID", postID);
@@ -501,11 +501,6 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
                     }
 
                     @Override
-                    public boolean zzsT() {
-                        return false;
-                    }
-
-                    @Override
                     public float getRating() {
                         return 0;
                     }
@@ -557,10 +552,15 @@ public class MainActivity extends BaseActivity implements GoogleApiClient.Connec
     public void selectDrawerItem(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.navProfile:
-                startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+                intent.putExtra("userID", String.valueOf(userLocalStore.getLoggedInUser().getUserID()));
+                startActivityForResult(intent, 100);
                 break;
             case R.id.navNotHere:
                 pickDifferentPlace();
+                break;
+            case R.id.navSettings:
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 break;
             case R.id.navLogout:
                 userLocalStore.clearUserData();

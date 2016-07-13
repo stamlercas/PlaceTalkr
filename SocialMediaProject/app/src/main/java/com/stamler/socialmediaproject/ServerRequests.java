@@ -2,7 +2,9 @@ package com.stamler.socialmediaproject;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
@@ -13,6 +15,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -31,15 +34,22 @@ import java.util.ArrayList;
  * Created by Chris on 11/17/2015.
  */
 public class ServerRequests {
+    SharedPreferences sp;
+
     ProgressDialog progressDialog;
     public final static int CONNECTION_TIMEOUT = 1000 * 15;
-    public final static String SERVER_ADDRESS = "http://cisprod.clarion.edu/~s_castamler/";
+    //public final static String SERVER_ADDRESS;
+    public String SERVER_ADDRESS;
     public final static String SUCCESS = "success";
 
     protected int postID;
 
     public ServerRequests(Context context)
     {
+        //loading the server address from the settings
+        sp = PreferenceManager.getDefaultSharedPreferences(context);
+        SERVER_ADDRESS = sp.getString("serverAddress", "http://cisprod.clarion.edu/~s_castamler/");
+
         progressDialog = new ProgressDialog(context);
         progressDialog.setCancelable(false);
         progressDialog.setTitle("Processing");
@@ -49,6 +59,10 @@ public class ServerRequests {
     //for individual posts need to know postID
     public ServerRequests(Context context, int postID)
     {
+        //loading the server address from the settings
+        sp = PreferenceManager.getDefaultSharedPreferences(context);
+        SERVER_ADDRESS = sp.getString("serverAddress", "http://cisprod.clarion.edu/~s_castamler/");
+
         progressDialog = new ProgressDialog(context);
         progressDialog.setCancelable(false);
         progressDialog.setTitle("Processing");
@@ -97,10 +111,10 @@ public class ServerRequests {
         new commentDataInBackground(user, comment, postID, jObj, callBack).execute();
     }
 
-    public void getUserDataInBackground(User user, JSONObject jObj, GetJSONObjectCallBack callBack)
+    public void getUserDataInBackground(int userID, JSONObject jObj, GetJSONObjectCallBack callBack)
     {
         progressDialog.show();
-        new getUserDataInBackground(user, jObj, callBack).execute();
+        new getUserDataInBackground(userID, jObj, callBack).execute();
     }
 
     public class StoreUserDataAsyncTask extends AsyncTask<Void, Void, JSONObject>
@@ -131,7 +145,7 @@ public class ServerRequests {
                     CONNECTION_TIMEOUT);
 
             HttpClient client = new DefaultHttpClient(httpRequestParams);
-            HttpPost post = new HttpPost(SERVER_ADDRESS + "register.php");
+            HttpPost post = new HttpPost(SERVER_ADDRESS + "/register");
 
             try {
                 post.setEntity(new UrlEncodedFormEntity(dataToSend));       //attach data to request
@@ -179,7 +193,7 @@ public class ServerRequests {
                     CONNECTION_TIMEOUT);
 
             HttpClient client = new DefaultHttpClient(httpRequestParams);
-            HttpPost post = new HttpPost(SERVER_ADDRESS + "login.php");
+            HttpPost post = new HttpPost(SERVER_ADDRESS + "/login");
 
             User returnedUser = null;
 
@@ -239,6 +253,7 @@ public class ServerRequests {
         }
 
         protected JSONObject doInBackground(Void... params) {
+            //TODO: get rid of the dataToSend array.  Only used to print in the log
             ArrayList<NameValuePair> dataToSend = new ArrayList<>();
             dataToSend.add(new BasicNameValuePair("PlaceID", place.getId()));
             dataToSend.add(new BasicNameValuePair("Latitude", String.valueOf(place.getLatLng().latitude)));
@@ -251,6 +266,7 @@ public class ServerRequests {
 
             dataToSend.add(new BasicNameValuePair("Page", String.valueOf(page)));
             dataToSend.add(new BasicNameValuePair("PageSize", String.valueOf(pageSize)));
+
             for (int i = 0; i < dataToSend.size(); i++)
                 Log.i(dataToSend.get(i).getName(), dataToSend.get(i).getValue());
 
@@ -261,13 +277,15 @@ public class ServerRequests {
                     CONNECTION_TIMEOUT);
 
             HttpClient client = new DefaultHttpClient(httpRequestParams);
-            HttpPost post = new HttpPost(SERVER_ADDRESS + "get_all_posts.php");
+            HttpGet get = new HttpGet(SERVER_ADDRESS + "posts/" + place.getId() +
+                    "?offset=" + String.valueOf(page) +
+                    "&limit=" + String.valueOf(pageSize));
 
             JSONObject jObject = null;
 
             try {
-                post.setEntity(new UrlEncodedFormEntity(dataToSend));
-                HttpResponse httpResponse = client.execute(post);
+                //post.setEntity(new UrlEncodedFormEntity(dataToSend));
+                HttpResponse httpResponse = client.execute(get);
 
                 HttpEntity entity = httpResponse.getEntity();
                 String result = EntityUtils.toString(entity);
@@ -307,10 +325,12 @@ public class ServerRequests {
         }
 
         protected JSONObject doInBackground(Void... params) {
+            /*  DON'T NEED for post requests
             ArrayList<NameValuePair> dataToSend = new ArrayList<>();
             dataToSend.add(new BasicNameValuePair("PostID", postID));
             dataToSend.add(new BasicNameValuePair("Page", String.valueOf(page)));
             dataToSend.add(new BasicNameValuePair("PageSize", String.valueOf(pageSize)));
+            */
 
             HttpParams httpRequestParams = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(httpRequestParams,
@@ -319,13 +339,14 @@ public class ServerRequests {
                     CONNECTION_TIMEOUT);
 
             HttpClient client = new DefaultHttpClient(httpRequestParams);
-            HttpPost post = new HttpPost(SERVER_ADDRESS + "get_post.php");
+            HttpGet get = new HttpGet(SERVER_ADDRESS + "post/" + String.valueOf(postID) +
+                                                        "?start=" + String.valueOf(page) +
+                                                        "&limit=" + String.valueOf(pageSize));
 
             JSONObject jObject = null;
 
             try {
-                post.setEntity(new UrlEncodedFormEntity(dataToSend));
-                HttpResponse httpResponse = client.execute(post);
+                HttpResponse httpResponse = client.execute(get);
 
                 HttpEntity entity = httpResponse.getEntity();
                 String result = EntityUtils.toString(entity);
@@ -379,7 +400,7 @@ public class ServerRequests {
                     CONNECTION_TIMEOUT);
 
             HttpClient client = new DefaultHttpClient(httpRequestParams);
-            HttpPost post = new HttpPost(SERVER_ADDRESS + "create_post.php");
+            HttpPost post = new HttpPost(SERVER_ADDRESS + "posts");
 
             try {
                 post.setEntity(new UrlEncodedFormEntity(dataToSend));       //attach data to request
@@ -436,7 +457,7 @@ public class ServerRequests {
                     CONNECTION_TIMEOUT);
 
             HttpClient client = new DefaultHttpClient(httpRequestParams);
-            HttpPost post = new HttpPost(SERVER_ADDRESS + "create_comment.php");
+            HttpPost post = new HttpPost(SERVER_ADDRESS + "/comments");
 
             try {
                 post.setEntity(new UrlEncodedFormEntity(dataToSend));       //attach data to request
@@ -467,20 +488,17 @@ public class ServerRequests {
         JSONObject jObj;
         GetJSONObjectCallBack callBack;
 
-        User user;
+        int userID;
 
-        public getUserDataInBackground(User user, JSONObject jObj, GetJSONObjectCallBack callBack)
+        public getUserDataInBackground(int userID, JSONObject jObj, GetJSONObjectCallBack callBack)
         {
             this.jObj = jObj;
             this.callBack = callBack;
-            this.user = user;
+            this.userID = userID;
         }
 
         protected JSONObject doInBackground(Void... params) {
-            ArrayList<NameValuePair> dataToSend = new ArrayList<>();
-            dataToSend.add(new BasicNameValuePair("UserID", String.valueOf(user.getUserID())));
-
-            return simpleDoInBackground(dataToSend, SERVER_ADDRESS + "get_user_info.php");
+            return simpleGETDoInBackground(SERVER_ADDRESS + "users/" + String.valueOf(userID));
         }
 
         protected void onPostExecute(JSONObject returnedJSONObject)
@@ -489,6 +507,32 @@ public class ServerRequests {
             callBack.done(returnedJSONObject);
             super.onPostExecute(returnedJSONObject);
         }
+    }
+
+    private JSONObject simpleGETDoInBackground(String url)
+    {
+        HttpParams httpRequestParams = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(httpRequestParams,
+                CONNECTION_TIMEOUT);
+        HttpConnectionParams.setSoTimeout(httpRequestParams,
+                CONNECTION_TIMEOUT);
+
+        HttpClient client = new DefaultHttpClient(httpRequestParams);
+        HttpGet get = new HttpGet(url);
+
+        try {
+            HttpResponse httpResponse = client.execute(get);           //retrieve json to know if successful or not
+
+            HttpEntity entity = httpResponse.getEntity();
+            String result = EntityUtils.toString(entity);
+
+            JSONObject jObject = new JSONObject(result);
+            return jObject;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     private JSONObject simpleDoInBackground(ArrayList<NameValuePair> dataToSend, String url)

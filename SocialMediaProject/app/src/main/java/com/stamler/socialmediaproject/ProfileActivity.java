@@ -19,6 +19,8 @@ public class ProfileActivity extends BaseActivity {
     protected TextView txtUsername, txtScore, numPosts, numComments, txtFullName, mostPopPlace;
     protected JSONObject jObj;
 
+    protected int userID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,6 +28,8 @@ public class ProfileActivity extends BaseActivity {
 
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        userID = Integer.parseInt(getIntent().getStringExtra("userID"));
 
         txtUsername = (TextView)findViewById(R.id.txtUsername);
         txtScore = (TextView)findViewById(R.id.txtScore);
@@ -39,7 +43,7 @@ public class ProfileActivity extends BaseActivity {
     public void onStart()
     {
         super.onStart();
-        getUserInfo(jObj, userLocalStore.getLoggedInUser());
+        getUserInfo(jObj, userID);
         setTitle(userLocalStore.getLoggedInUser().getUsername());
     }
 
@@ -55,10 +59,10 @@ public class ProfileActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    protected void getUserInfo(JSONObject jObj, User user)
+    protected void getUserInfo(JSONObject jObj, int userID)
     {
         ServerRequests serverRequests = new ServerRequests(this);
-        serverRequests.getUserDataInBackground(user, jObj, new GetJSONObjectCallBack() {
+        serverRequests.getUserDataInBackground(userID, jObj, new GetJSONObjectCallBack() {
             @Override
             public void done(JSONObject returnedJSONObj) {
                 try {
@@ -83,7 +87,9 @@ public class ProfileActivity extends BaseActivity {
             txtScore.setText("Score: " + jObj.getString("Score"));
             numPosts.setText("Number of Posts: " + jObj.getString("NumberOfPosts"));
             numComments.setText("Number of Comments: " + jObj.getString("NumberOfComments"));
-            txtFullName.setText(jObj.getString("FirstName") + " " + jObj.getString("LastName"));
+            if (userID == userLocalStore.getLoggedInUser().getUserID())     //do not display full name unless they are looking
+                                                                            //at their own details
+                txtFullName.setText(jObj.getString("FirstName") + " " + jObj.getString("LastName"));
             mostPopPlace.setText("Most Popular Place: " + jObj.getString("MostPopularPlace"));
         } catch(JSONException e) {
             e.printStackTrace();

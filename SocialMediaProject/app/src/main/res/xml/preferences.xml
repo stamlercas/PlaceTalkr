@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference android:title="Server Address"
+        android:defaultValue="http://cisprod.clarion.edu/~s_castamler/"
+        android:key="serverAddress"
+        android:summary="Specify the server address"></EditTextPreference>
+    <EditTextPreference android:title="Page Size Limit"
+        android:defaultValue="25"
+        android:key="limit"
+        android:inputType="number"
+        android:summary="Limit the number of posts that load per page"></EditTextPreference>
+    <CheckBoxPreference android:title="Application Updates"
+        android:defaultValue="false"
+        android:summary="This option if selected will allow the application to check for latest versions."
+        android:key="applicationUpdates" />
+    <ListPreference     android:title="Download Details"
+        android:summary="Select the kind of data that you would like to download"
+        android:key="downloadType"
+        android:defaultValue="1"
+        android:entries="@array/listArray"
+        android:entryValues="@array/listValues" />
+</PreferenceScreen>

@@ -10,6 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -82,10 +83,14 @@ public class CommentsActivity extends BaseActivity {
                     comment(postID, txtSubmit.getText().toString(), userLocalStore.getLoggedInUser());
             }
         });
-        postsLayout.setOnClickListener(new View.OnClickListener() {
+
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(View v) {
-                //TODO: goto profile activity to display the profile for user who posted
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                int userID = Integer.parseInt(((TextView) view.findViewById(R.id.userID)).getText().toString());
+                Intent intent = new Intent(CommentsActivity.this, ProfileActivity.class);
+                intent.putExtra("userID", String.valueOf(userID));
+                startActivityForResult(intent, 100);
             }
         });
     }
@@ -255,6 +260,11 @@ public class CommentsActivity extends BaseActivity {
             return false;
         }
         return true;
+    }
+
+    public RelativeLayout getPostsLayout()
+    {
+        return postsLayout;
     }
 
 }

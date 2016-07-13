@@ -12,6 +12,7 @@
             android:icon="@drawable/ic_not_here"
             android:title="@string/action_findPlace" />
     </group>
+    <!--
     <group
         android:id="@+id/menu_friends"
         android:checkableBehavior="single">
@@ -20,9 +21,14 @@
             android:icon="@drawable/ic_add_friend"
             android:title="@string/title_activity_add_friend" />
     </group>
+    -->
     <group
         android:id="@+id/menu_bottom"
         android:checkableBehavior="single">
+        <item
+            android:id="@+id/navSettings"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/action_settings" />
         <item
             android:id="@+id/navLogout"
             android:icon="@drawable/ic_logout"

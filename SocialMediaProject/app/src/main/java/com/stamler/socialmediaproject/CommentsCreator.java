@@ -1,5 +1,7 @@
 package com.stamler.socialmediaproject;
 
+import android.content.Intent;
+import android.view.View;
 import android.widget.ListView;
 
 import com.google.android.gms.location.places.Place;
@@ -24,9 +26,10 @@ public class CommentsCreator extends ContentCreator {
 
     //create individual hashmap from parameters
     //TODO: put into PostsCreator class. There will be a seperate function for createComments for the CommentCreator class
-    private HashMap<String, String> createComment(String commentID, String content, String username, String time){
+    private HashMap<String, String> createComment(String commentID, String userID, String content, String username, String time){
         HashMap<String, String> post = new HashMap<>();
         post.put("commentID", commentID);
+        post.put("userID", userID);
         post.put("content", content);
         post.put("username", username);
         post.put("time", time);
@@ -40,7 +43,8 @@ public class CommentsCreator extends ContentCreator {
     }
 
     //gets the specific post along with the comments associated with it
-    public void getPost(JSONObject jObj, String postID, final int page, int pageSize) {
+    public void getPost(final JSONObject jObj, String postID, final int page, int pageSize) {
+        pageSize = Integer.parseInt(sp.getString("limit", "25"));   //need to check if the limit has changed in the settings
         ServerRequests serverRequest = new ServerRequests(mActivity.getBaseContext());
         serverRequest.getIndividualPostsDataInBackground(jObj, postID, page, pageSize, new GetJSONObjectCallBack() {
             @Override
@@ -51,6 +55,7 @@ public class CommentsCreator extends ContentCreator {
                         mActivity.showErrorMessage("Sorry, the app could not connect.");
                     } else if (returnedJSONObject.getInt("success") == 1) {
                         endOfList = returnedJSONObject.getBoolean("EndOfList");
+                        final int userID = returnedJSONObject.getJSONArray("post").getJSONObject(0).getInt("UserID");
                         //gets the object with the array in it, but only if its the first page
                         if (page == 0) {
                             JSONObject post = returnedJSONObject.getJSONArray("post").getJSONObject(0);
@@ -62,13 +67,24 @@ public class CommentsCreator extends ContentCreator {
                             displayContent(mActivity.getBaseContext(),
                                     comments,
                                     R.layout.layout_comments,
-                                    new String[]{"commentID", "username", "content", "time"},      //order matters HERE!
-                                    new int[]{R.id.postID, R.id.username, R.id.content, R.id.time});
+                                    new String[]{"commentID", "userID", "username", "content", "time"},      //order matters HERE!
+                                    new int[]{R.id.postID, R.id.userID, R.id.username, R.id.content, R.id.time});
                             start++;
                         } else {
                             addContent(comments);
                             start++;
                         }
+
+                        //click on the post in the activity and it will take you to the profile activity, to view
+                        //their profile details, but not sensitive details
+                        ((CommentsActivity)mActivity).getPostsLayout().setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(mActivity.getBaseContext(), ProfileActivity.class);
+                                intent.putExtra("userID", String.valueOf(userID));
+                                mActivity.startActivityForResult(intent, 100);
+                            }
+                        });
 
                     } else if (returnedJSONObject.getInt("success") == 0)
                         mActivity.showErrorMessage(returnedJSONObject.getString("message"));
@@ -80,6 +96,13 @@ public class CommentsCreator extends ContentCreator {
                         list.addFooterView(footer);
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    try {       //make sure the JSONException is because there have been no posts made yet
+                        //have to put a try catch inside a catch...
+                        if (returnedJSONObject.getInt("FirstToComment") == 1)
+                            displayContent(mActivity.getBaseContext(), "Be the first one to comment here!"); //if there are no posts, display this message
+                    } catch (JSONException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
         });
@@ -96,6 +119,7 @@ public class CommentsCreator extends ContentCreator {
             try {
                 childNode = jArr.getJSONObject(i);
                 postList.add( createComment(childNode.getString("CommentID"),
+                        childNode.getString("UserID"),
                         childNode.getString("Content"),
                         childNode.getString("Username"),
                         childNode.getString("Time")));

@@ -48,6 +48,7 @@ public class PostsCreator extends ContentCreator {
     //return true to tell when its done loading
     public boolean getPosts(JSONObject jObj, Place place, final int page, int pageSize) {
         //list.setAdapter(null);
+        pageSize = Integer.parseInt(sp.getString("limit", "25"));   //need to check if the limit has changed in the settings
         ServerRequests serverRequest = new ServerRequests(mActivity.getBaseContext());
         serverRequest.getPostsDataInBackground(jObj, place, page, pageSize, new GetJSONObjectCallBack() {
             @Override

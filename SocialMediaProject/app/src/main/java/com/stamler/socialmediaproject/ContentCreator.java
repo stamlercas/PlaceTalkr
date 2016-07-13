@@ -2,6 +2,8 @@ package com.stamler.socialmediaproject;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AbsListView;
@@ -34,13 +36,15 @@ public abstract class ContentCreator {
 
     protected int start = 0;               //don't need anymore because of InfiniteScrollListener class
     protected boolean endOfList = false;
-    protected static final int pageSize = 25;
+    protected int pageSize;
     protected boolean flag_loading = false;
     protected ArrayList<HashMap<String, String>> content;
     protected BaseActivity mActivity;
     protected JSONObject jObj;
     protected boolean firstToPost;
     protected ListAdapter adapter;
+
+    protected SharedPreferences sp;
 
     public ContentCreator(BaseActivity activity, ListView list)
     {
@@ -49,6 +53,9 @@ public abstract class ContentCreator {
         //footer will always be at bottom until end of list is reached
         footer = mActivity.getLayoutInflater().inflate(R.layout.list_footer, null);
         jObj = new JSONObject();
+
+        sp = PreferenceManager.getDefaultSharedPreferences(mActivity.getBaseContext());
+        pageSize = Integer.parseInt(sp.getString("limit", "25"));
 
         list.addFooterView(footer);
 
