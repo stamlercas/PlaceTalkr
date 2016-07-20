@@ -30,12 +30,13 @@ public class PostsCreator extends ContentCreator {
 
     //create individual hashmap from parameters
     //TODO: put into PostsCreator class. There will be a seperate function for createComments for the CommentCreator class
-    private HashMap<String, String>createPost(String postID, String content, String username, String time){
+    private HashMap<String, String>createPost(String postID, String content, String username, String time, String numberOfComments){
         HashMap<String, String> post = new HashMap<>();
         post.put("postID", postID);
         post.put("content", content);
         post.put("username", username);
         post.put("time", time);
+        post.put("numberOfComments", numberOfComments);
         return post;
     }
 
@@ -70,8 +71,8 @@ public class PostsCreator extends ContentCreator {
                             displayContent(mActivity.getBaseContext(),
                                     jsonArray,
                                     R.layout.layout_posts,
-                                    new String[]{"postID", "username", "content", "time"},      //order matters HERE!
-                                    new int[]{R.id.postID, R.id.username, R.id.content, R.id.time});
+                                    new String[]{"postID", "username", "content", "time", "numberOfComments"},      //order matters HERE!
+                                    new int[]{R.id.postID, R.id.username, R.id.content, R.id.time, R.id.numberOfComments});
                             ;
                             start++;
                         } else {
@@ -113,7 +114,8 @@ public class PostsCreator extends ContentCreator {
                 contentList.add( createPost(childNode.getString("PostID"),
                         childNode.getString("Content").replaceAll("\\\\",""),
                         childNode.getString("Username"),
-                        childNode.getString("Time")));
+                        childNode.getString("Time"),
+                        childNode.getString("NumberOfComments")));
             } catch(JSONException e) {
                 e.printStackTrace();
             }
